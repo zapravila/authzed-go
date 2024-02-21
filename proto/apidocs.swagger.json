@@ -15,13 +15,13 @@
   },
   "tags": [
     {
-      "name": "DeveloperService"
-    },
-    {
       "name": "PermissionsService"
     },
     {
       "name": "ExperimentalService"
+    },
+    {
+      "name": "PermissionsExtService"
     },
     {
       "name": "SchemaService"
@@ -312,6 +312,83 @@
         ]
       }
     },
+    "/v1/relationships-ext/read": {
+      "post": {
+        "summary": "ReadRelationships reads a set of the relationships matching one or more\nfilters.",
+        "operationId": "PermissionsExtService_ReadRelationships",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1ReadRelationshipsResponseExt"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1ReadRelationshipsResponseExt"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "ReadRelationshipsRequest specifies one or more filters used to read matching\nrelationships within the system.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ReadRelationshipsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "PermissionsExtService"
+        ]
+      }
+    },
+    "/v1/relationships-ext/write": {
+      "post": {
+        "summary": "WriteRelationships atomically writes and/or deletes a set of specified\nrelationships. An optional set of preconditions can be provided that must\nbe satisfied for the operation to commit.",
+        "operationId": "PermissionsExtService_WriteRelationships",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1WriteRelationshipsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "WriteRelationshipsRequest contains a list of Relationship mutations that\nshould be applied to the service. If the optional_preconditions parameter\nis included, all of the specified preconditions must also be satisfied before\nthe write will be committed.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1WriteRelationshipsRequestExt"
+            }
+          }
+        ],
+        "tags": [
+          "PermissionsExtService"
+        ]
+      }
+    },
     "/v1/relationships/delete": {
       "post": {
         "summary": "DeleteRelationships atomically bulk deletes all relationships matching the\nprovided filter. If no relationships match, none will be deleted and the\noperation will succeed. An optional set of preconditions can be provided that must\nbe satisfied for the operation to commit.",
@@ -589,44 +666,6 @@
       "default": "DELETION_PROGRESS_UNSPECIFIED",
       "description": " - DELETION_PROGRESS_COMPLETE: DELETION_PROGRESS_COMPLETE indicates that all remaining relationships matching the filter\nwere deleted. Will be returned even if no relationships were deleted.\n - DELETION_PROGRESS_PARTIAL: DELETION_PROGRESS_PARTIAL indicates that a subset of the relationships matching the filter\nwere deleted. Only returned if optional_allow_partial_deletions was true, an optional_limit was\nspecified, and there existed more relationships matching the filter than optional_limit would allow.\nOnce all remaining relationships have been deleted, DELETION_PROGRESS_COMPLETE will be returned."
     },
-    "DeveloperErrorErrorKind": {
-      "type": "string",
-      "enum": [
-        "UNKNOWN_KIND",
-        "PARSE_ERROR",
-        "SCHEMA_ISSUE",
-        "DUPLICATE_RELATIONSHIP",
-        "MISSING_EXPECTED_RELATIONSHIP",
-        "EXTRA_RELATIONSHIP_FOUND",
-        "UNKNOWN_OBJECT_TYPE",
-        "UNKNOWN_RELATION",
-        "MAXIMUM_RECURSION",
-        "ASSERTION_FAILED"
-      ],
-      "default": "UNKNOWN_KIND"
-    },
-    "DeveloperErrorSource": {
-      "type": "string",
-      "enum": [
-        "UNKNOWN_SOURCE",
-        "SCHEMA",
-        "RELATIONSHIP",
-        "VALIDATION_YAML",
-        "CHECK_WATCH",
-        "ASSERTION"
-      ],
-      "default": "UNKNOWN_SOURCE"
-    },
-    "LookupShareResponseLookupStatus": {
-      "type": "string",
-      "enum": [
-        "UNKNOWN_REFERENCE",
-        "FAILED_TO_LOOKUP",
-        "VALID_REFERENCE",
-        "UPGRADED_REFERENCE"
-      ],
-      "default": "UNKNOWN_REFERENCE"
-    },
     "LookupSubjectsRequestWildcardOption": {
       "type": "string",
       "enum": [
@@ -741,11 +780,11 @@
         "code": {
           "type": "integer",
           "format": "int32",
-          "description": "The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code]."
+          "description": "The status code, which should be an enum value of\n[google.rpc.Code][google.rpc.Code]."
         },
         "message": {
           "type": "string",
-          "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\n[google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client."
+          "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\n[google.rpc.Status.details][google.rpc.Status.details] field, or localized\nby the client."
         },
         "details": {
           "type": "array",
@@ -757,192 +796,6 @@
         }
       },
       "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors)."
-    },
-    "v0DeveloperError": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        },
-        "line": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "column": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "source": {
-          "$ref": "#/definitions/DeveloperErrorSource"
-        },
-        "kind": {
-          "$ref": "#/definitions/DeveloperErrorErrorKind"
-        },
-        "path": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "context": {
-          "type": "string",
-          "description": "context holds the context for the error. For schema issues, this will be the\nname of the object type. For relationship issues, the full relationship string."
-        }
-      }
-    },
-    "v0EditCheckResponse": {
-      "type": "object",
-      "properties": {
-        "requestErrors": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v0DeveloperError"
-          }
-        },
-        "checkResults": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v0EditCheckResult"
-          }
-        }
-      }
-    },
-    "v0EditCheckResult": {
-      "type": "object",
-      "properties": {
-        "relationship": {
-          "$ref": "#/definitions/v0RelationTuple"
-        },
-        "isMember": {
-          "type": "boolean"
-        },
-        "error": {
-          "$ref": "#/definitions/v0DeveloperError"
-        }
-      }
-    },
-    "v0FormatSchemaResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/v0DeveloperError"
-        },
-        "formattedSchema": {
-          "type": "string"
-        }
-      }
-    },
-    "v0LookupShareResponse": {
-      "type": "object",
-      "properties": {
-        "status": {
-          "$ref": "#/definitions/LookupShareResponseLookupStatus"
-        },
-        "schema": {
-          "type": "string"
-        },
-        "relationshipsYaml": {
-          "type": "string"
-        },
-        "validationYaml": {
-          "type": "string"
-        },
-        "assertionsYaml": {
-          "type": "string"
-        }
-      }
-    },
-    "v0ObjectAndRelation": {
-      "type": "object",
-      "properties": {
-        "namespace": {
-          "type": "string"
-        },
-        "objectId": {
-          "type": "string"
-        },
-        "relation": {
-          "type": "string"
-        }
-      }
-    },
-    "v0RelationTuple": {
-      "type": "object",
-      "properties": {
-        "objectAndRelation": {
-          "$ref": "#/definitions/v0ObjectAndRelation",
-          "description": "Each tupleset specifies keys of a set of relation tuples. The set can\ninclude a single tuple key, or all tuples with a given object ID or\nuserset in a namespace, optionally constrained by a relation name.\n\nexamples:\ndoc:readme#viewer@group:eng#member (fully specified)\ndoc:*#*#group:eng#member (all tuples that this userset relates to)\ndoc:12345#*#* (all tuples with a direct relationship to a document)\ndoc:12345#writer#* (all tuples with direct write relationship with the\ndocument) doc:#writer#group:eng#member (all tuples that eng group has write\nrelationship)"
-        },
-        "user": {
-          "$ref": "#/definitions/v0User"
-        }
-      }
-    },
-    "v0RequestContext": {
-      "type": "object",
-      "properties": {
-        "schema": {
-          "type": "string"
-        },
-        "relationships": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v0RelationTuple"
-          }
-        }
-      }
-    },
-    "v0ShareResponse": {
-      "type": "object",
-      "properties": {
-        "shareReference": {
-          "type": "string"
-        }
-      }
-    },
-    "v0UpgradeSchemaResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/v0DeveloperError"
-        },
-        "upgradedSchema": {
-          "type": "string"
-        }
-      }
-    },
-    "v0User": {
-      "type": "object",
-      "properties": {
-        "userset": {
-          "$ref": "#/definitions/v0ObjectAndRelation"
-        }
-      }
-    },
-    "v0ValidateResponse": {
-      "type": "object",
-      "properties": {
-        "requestErrors": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v0DeveloperError"
-          }
-        },
-        "validationErrors": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v0DeveloperError"
-          }
-        },
-        "updatedValidationYaml": {
-          "type": "string"
-        }
-      }
     },
     "v1AlgebraicSubjectSet": {
       "type": "object",
@@ -1540,6 +1393,24 @@
       },
       "description": "ReadRelationshipsResponse contains a Relationship found that matches the\nspecified relationship filter(s). A instance of this response message will\nbe streamed to the client for each relationship found."
     },
+    "v1ReadRelationshipsResponseExt": {
+      "type": "object",
+      "properties": {
+        "readAt": {
+          "$ref": "#/definitions/v1ZedToken",
+          "description": "read_at is the ZedToken at which the relationship was found."
+        },
+        "relationship": {
+          "$ref": "#/definitions/v1RelationshipExt",
+          "description": "relationship is the found relationship."
+        },
+        "afterResultCursor": {
+          "$ref": "#/definitions/v1Cursor",
+          "description": "after_result_cursor holds a cursor that can be used to resume the ReadRelationships stream after this\nresult."
+        }
+      },
+      "description": "ReadRelationshipsResponse contains a Relationship found that matches the\nspecified relationship filter(s). A instance of this response message will\nbe streamed to the client for each relationship found."
+    },
     "v1Relationship": {
       "type": "object",
       "properties": {
@@ -1554,6 +1425,34 @@
         "subject": {
           "$ref": "#/definitions/v1SubjectReference",
           "description": "subject is the subject to which the resource is related, in some manner."
+        },
+        "optionalCaveat": {
+          "$ref": "#/definitions/v1ContextualizedCaveat",
+          "title": "optional_caveat is a reference to a the caveat that must be enforced over the relationship"
+        }
+      },
+      "description": "Relationship specifies how a resource relates to a subject. Relationships\nform the data for the graph over which all permissions questions are\nanswered."
+    },
+    "v1RelationshipExt": {
+      "type": "object",
+      "properties": {
+        "resource": {
+          "$ref": "#/definitions/v1ObjectReference",
+          "title": "resource is the resource to which the subject is related, in some manner"
+        },
+        "relation": {
+          "type": "string",
+          "description": "relation is how the resource and subject are related."
+        },
+        "subject": {
+          "$ref": "#/definitions/v1SubjectReference",
+          "description": "subject is the subject to which the resource is related, in some manner."
+        },
+        "optionalDescription": {
+          "type": "string"
+        },
+        "optionalComment": {
+          "type": "string"
         },
         "optionalCaveat": {
           "$ref": "#/definitions/v1ContextualizedCaveat",
@@ -1599,6 +1498,28 @@
         }
       },
       "description": "RelationshipUpdate is used for mutating a single relationship within the\nservice.\n\nCREATE will create the relationship only if it doesn't exist, and error\notherwise.\n\nTOUCH will upsert the relationship, and will not error if it\nalready exists.\n\nDELETE will delete the relationship. If the relationship does not exist,\nthis operation will no-op."
+    },
+    "v1RelationshipUpdateExt": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "$ref": "#/definitions/v1RelationshipUpdateExtOperation"
+        },
+        "relationship": {
+          "$ref": "#/definitions/v1RelationshipExt"
+        }
+      },
+      "description": "RelationshipUpdate is used for mutating a single relationship within the\nservice.\n\nCREATE will create the relationship only if it doesn't exist, and error\notherwise.\n\nTOUCH will upsert the relationship, and will not error if it\nalready exists.\n\nDELETE will delete the relationship. If the relationship does not exist,\nthis operation will no-op."
+    },
+    "v1RelationshipUpdateExtOperation": {
+      "type": "string",
+      "enum": [
+        "OPERATION_UNSPECIFIED",
+        "OPERATION_CREATE",
+        "OPERATION_TOUCH",
+        "OPERATION_DELETE"
+      ],
+      "default": "OPERATION_UNSPECIFIED"
     },
     "v1RelationshipUpdateOperation": {
       "type": "string",
@@ -1704,6 +1625,27 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1RelationshipUpdate"
+          }
+        },
+        "optionalPreconditions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Precondition"
+          },
+          "title": "To be bounded by configuration"
+        }
+      },
+      "description": "WriteRelationshipsRequest contains a list of Relationship mutations that\nshould be applied to the service. If the optional_preconditions parameter\nis included, all of the specified preconditions must also be satisfied before\nthe write will be committed."
+    },
+    "v1WriteRelationshipsRequestExt": {
+      "type": "object",
+      "properties": {
+        "updates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RelationshipUpdateExt"
           }
         },
         "optionalPreconditions": {

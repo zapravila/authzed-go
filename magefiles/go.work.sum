@@ -838,6 +838,8 @@ github.com/armon/go-metrics v0.3.10 h1:FR+drcQStOe+32sYyJYyZ7FIdgoGGBnwLl+flodp8
 github.com/armon/go-metrics v0.3.10/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
 github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLju8=
 github.com/benbjohnson/clock v1.3.5/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
+github.com/bufbuild/buf v1.29.0 h1:llP6HqOcCaSGBxOfnrp/mwvcY1O/dciEOl1QaMEOB3M=
+github.com/bufbuild/buf v1.29.0/go.mod h1:UTjvPXTObvKQiGqxod32wt9zRz70TJsMpaigpbIZGuc=
 github.com/bufbuild/protocompile v0.8.0 h1:9Kp1q6OkS9L4nM3FYbr8vlJnEwtbpDPQlQOVXfR+78s=
 github.com/bufbuild/protocompile v0.8.0/go.mod h1:+Etjg4guZoAqzVk2czwEQP12yaxLJ8DxuqCJ9qHdH94=
 github.com/bufbuild/protovalidate-go v0.5.0 h1:xFery2RlLh07FQTvB7hlasKqPrDK2ug+uw6DUiuadjo=

@@ -3,7 +3,7 @@ module github.com/authzed/authzed-go/magefiles
 go 1.20
 
 require (
-	github.com/bufbuild/buf v1.27.1
+	github.com/bufbuild/buf v1.29.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2

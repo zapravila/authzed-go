@@ -1,0 +1,3 @@
+[submodule "magefiles/api"]
+	path = magefiles/api
+	url = https://github.com/zapravila/api.git
