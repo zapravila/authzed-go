@@ -24,9 +24,6 @@
       "name": "ExperimentalService"
     },
     {
-      "name": "PermissionsExtService"
-    },
-    {
       "name": "SchemaService"
     },
     {
@@ -312,83 +309,6 @@
         ],
         "tags": [
           "PermissionsService"
-        ]
-      }
-    },
-    "/v1/relationships-ext/read": {
-      "post": {
-        "summary": "ReadRelationships reads a set of the relationships matching one or more\nfilters.",
-        "operationId": "PermissionsExtService_ReadRelationships",
-        "responses": {
-          "200": {
-            "description": "A successful response.(streaming responses)",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "result": {
-                  "$ref": "#/definitions/v1ReadRelationshipsResponseExt"
-                },
-                "error": {
-                  "$ref": "#/definitions/rpcStatus"
-                }
-              },
-              "title": "Stream result of v1ReadRelationshipsResponseExt"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "ReadRelationshipsRequest specifies one or more filters used to read matching\nrelationships within the system.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1ReadRelationshipsRequest"
-            }
-          }
-        ],
-        "tags": [
-          "PermissionsExtService"
-        ]
-      }
-    },
-    "/v1/relationships-ext/write": {
-      "post": {
-        "summary": "WriteRelationships atomically writes and/or deletes a set of specified\nrelationships. An optional set of preconditions can be provided that must\nbe satisfied for the operation to commit.",
-        "operationId": "PermissionsExtService_WriteRelationships",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1WriteRelationshipsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "description": "WriteRelationshipsRequest contains a list of Relationship mutations that\nshould be applied to the service. If the optional_preconditions parameter\nis included, all of the specified preconditions must also be satisfied before\nthe write will be committed.",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1WriteRelationshipsRequestExt"
-            }
-          }
-        ],
-        "tags": [
-          "PermissionsExtService"
         ]
       }
     },
@@ -1620,24 +1540,6 @@
       },
       "description": "ReadRelationshipsResponse contains a Relationship found that matches the\nspecified relationship filter(s). A instance of this response message will\nbe streamed to the client for each relationship found."
     },
-    "v1ReadRelationshipsResponseExt": {
-      "type": "object",
-      "properties": {
-        "readAt": {
-          "$ref": "#/definitions/v1ZedToken",
-          "description": "read_at is the ZedToken at which the relationship was found."
-        },
-        "relationship": {
-          "$ref": "#/definitions/v1RelationshipExt",
-          "description": "relationship is the found relationship."
-        },
-        "afterResultCursor": {
-          "$ref": "#/definitions/v1Cursor",
-          "description": "after_result_cursor holds a cursor that can be used to resume the ReadRelationships stream after this\nresult."
-        }
-      },
-      "description": "ReadRelationshipsResponse contains a Relationship found that matches the\nspecified relationship filter(s). A instance of this response message will\nbe streamed to the client for each relationship found."
-    },
     "v1Relationship": {
       "type": "object",
       "properties": {
@@ -1656,34 +1558,14 @@
         "optionalCaveat": {
           "$ref": "#/definitions/v1ContextualizedCaveat",
           "title": "optional_caveat is a reference to a the caveat that must be enforced over the relationship"
-        }
-      },
-      "description": "Relationship specifies how a resource relates to a subject. Relationships\nform the data for the graph over which all permissions questions are\nanswered."
-    },
-    "v1RelationshipExt": {
-      "type": "object",
-      "properties": {
-        "resource": {
-          "$ref": "#/definitions/v1ObjectReference",
-          "title": "resource is the resource to which the subject is related, in some manner"
-        },
-        "relation": {
-          "type": "string",
-          "description": "relation is how the resource and subject are related."
-        },
-        "subject": {
-          "$ref": "#/definitions/v1SubjectReference",
-          "description": "subject is the subject to which the resource is related, in some manner."
         },
         "optionalDescription": {
-          "type": "string"
+          "type": "string",
+          "title": "[ (validate.rules).string.ignore_empty = true ];"
         },
         "optionalComment": {
-          "type": "string"
-        },
-        "optionalCaveat": {
-          "$ref": "#/definitions/v1ContextualizedCaveat",
-          "title": "optional_caveat is a reference to a the caveat that must be enforced over the relationship"
+          "type": "string",
+          "title": "[ (validate.rules).string.ignore_empty = true ];"
         }
       },
       "description": "Relationship specifies how a resource relates to a subject. Relationships\nform the data for the graph over which all permissions questions are\nanswered."
@@ -1725,28 +1607,6 @@
         }
       },
       "description": "RelationshipUpdate is used for mutating a single relationship within the\nservice.\n\nCREATE will create the relationship only if it doesn't exist, and error\notherwise.\n\nTOUCH will upsert the relationship, and will not error if it\nalready exists.\n\nDELETE will delete the relationship. If the relationship does not exist,\nthis operation will no-op."
-    },
-    "v1RelationshipUpdateExt": {
-      "type": "object",
-      "properties": {
-        "operation": {
-          "$ref": "#/definitions/v1RelationshipUpdateExtOperation"
-        },
-        "relationship": {
-          "$ref": "#/definitions/v1RelationshipExt"
-        }
-      },
-      "description": "RelationshipUpdate is used for mutating a single relationship within the\nservice.\n\nCREATE will create the relationship only if it doesn't exist, and error\notherwise.\n\nTOUCH will upsert the relationship, and will not error if it\nalready exists.\n\nDELETE will delete the relationship. If the relationship does not exist,\nthis operation will no-op."
-    },
-    "v1RelationshipUpdateExtOperation": {
-      "type": "string",
-      "enum": [
-        "OPERATION_UNSPECIFIED",
-        "OPERATION_CREATE",
-        "OPERATION_TOUCH",
-        "OPERATION_DELETE"
-      ],
-      "default": "OPERATION_UNSPECIFIED"
     },
     "v1RelationshipUpdateOperation": {
       "type": "string",
@@ -1852,27 +1712,6 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1RelationshipUpdate"
-          }
-        },
-        "optionalPreconditions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Precondition"
-          },
-          "title": "To be bounded by configuration"
-        }
-      },
-      "description": "WriteRelationshipsRequest contains a list of Relationship mutations that\nshould be applied to the service. If the optional_preconditions parameter\nis included, all of the specified preconditions must also be satisfied before\nthe write will be committed."
-    },
-    "v1WriteRelationshipsRequestExt": {
-      "type": "object",
-      "properties": {
-        "updates": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1RelationshipUpdateExt"
           }
         },
         "optionalPreconditions": {
