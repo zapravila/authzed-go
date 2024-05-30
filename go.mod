@@ -1,4 +1,4 @@
-module github.com/zapravila/zapravila-go
+module github.com/zapravila/authzed-go
 
 go 1.18
 
