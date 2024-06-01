@@ -19,16 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ExperimentalService_BulkImportRelationships_FullMethodName                   = "/authzed.api.v1.ExperimentalService/BulkImportRelationships"
-	ExperimentalService_BulkExportRelationships_FullMethodName                   = "/authzed.api.v1.ExperimentalService/BulkExportRelationships"
-	ExperimentalService_BulkCheckPermission_FullMethodName                       = "/authzed.api.v1.ExperimentalService/BulkCheckPermission"
-	ExperimentalService_ExperimentalReflectSchema_FullMethodName                 = "/authzed.api.v1.ExperimentalService/ExperimentalReflectSchema"
-	ExperimentalService_ExperimentalComputablePermissions_FullMethodName         = "/authzed.api.v1.ExperimentalService/ExperimentalComputablePermissions"
-	ExperimentalService_ExperimentalDependentRelations_FullMethodName            = "/authzed.api.v1.ExperimentalService/ExperimentalDependentRelations"
-	ExperimentalService_ExperimentalDiffSchema_FullMethodName                    = "/authzed.api.v1.ExperimentalService/ExperimentalDiffSchema"
-	ExperimentalService_ExperimentalRegisterRelationshipCounter_FullMethodName   = "/authzed.api.v1.ExperimentalService/ExperimentalRegisterRelationshipCounter"
-	ExperimentalService_ExperimentalCountRelationships_FullMethodName            = "/authzed.api.v1.ExperimentalService/ExperimentalCountRelationships"
-	ExperimentalService_ExperimentalUnregisterRelationshipCounter_FullMethodName = "/authzed.api.v1.ExperimentalService/ExperimentalUnregisterRelationshipCounter"
+	ExperimentalService_BulkImportRelationships_FullMethodName = "/authzed.api.v1.ExperimentalService/BulkImportRelationships"
+	ExperimentalService_BulkExportRelationships_FullMethodName = "/authzed.api.v1.ExperimentalService/BulkExportRelationships"
+	ExperimentalService_BulkCheckPermission_FullMethodName     = "/authzed.api.v1.ExperimentalService/BulkCheckPermission"
 )
 
 // ExperimentalServiceClient is the client API for ExperimentalService service.
@@ -49,33 +42,7 @@ type ExperimentalServiceClient interface {
 	// relationships from the server. It is resumable, and will return results
 	// in an order determined by the server.
 	BulkExportRelationships(ctx context.Context, in *BulkExportRelationshipsRequest, opts ...grpc.CallOption) (ExperimentalService_BulkExportRelationshipsClient, error)
-	// Deprecated: Do not use.
-	// NOTE: BulkCheckPermission has been promoted to the stable API as "CheckBulkPermission" and the
-	// API will be removed from experimental in a future release.
 	BulkCheckPermission(ctx context.Context, in *BulkCheckPermissionRequest, opts ...grpc.CallOption) (*BulkCheckPermissionResponse, error)
-	// EXPERIMENTAL: ReflectSchema is an API that allows clients to reflect the schema stored in
-	// SpiceDB. This is useful for clients that need to introspect the schema of a SpiceDB instance.
-	ExperimentalReflectSchema(ctx context.Context, in *ExperimentalReflectSchemaRequest, opts ...grpc.CallOption) (*ExperimentalReflectSchemaResponse, error)
-	// EXPERIMENTAL: ComputablePermissions is an API that allows clients to request the set of
-	// permissions that compute based off a relation. For example, if a schema has a relation
-	// `viewer` and a permission `view` defined as `permission view = viewer + editor`, then the
-	// computable permissions for the relation `viewer` will include `view`.
-	ExperimentalComputablePermissions(ctx context.Context, in *ExperimentalComputablePermissionsRequest, opts ...grpc.CallOption) (*ExperimentalComputablePermissionsResponse, error)
-	// EXPERIMENTAL: DependentRelations is an API that allows clients to request the set of
-	// relations and permissions that used to compute a permission, recursively. It is the
-	// inverse of the ComputablePermissions API.
-	ExperimentalDependentRelations(ctx context.Context, in *ExperimentalDependentRelationsRequest, opts ...grpc.CallOption) (*ExperimentalDependentRelationsResponse, error)
-	// EXPERIMENTAL: DiffSchema is an API that allows clients to request the difference between the
-	// specified schema and the schema stored in SpiceDB. This is useful for clients that need to
-	// introspect the schema of a SpiceDB instance.
-	ExperimentalDiffSchema(ctx context.Context, in *ExperimentalDiffSchemaRequest, opts ...grpc.CallOption) (*ExperimentalDiffSchemaResponse, error)
-	// EXPERIMENTAL: RegisterRelationshipCounter registers a new filter for counting relationships. A filter must be registered before
-	// a count can be requested.
-	ExperimentalRegisterRelationshipCounter(ctx context.Context, in *ExperimentalRegisterRelationshipCounterRequest, opts ...grpc.CallOption) (*ExperimentalRegisterRelationshipCounterResponse, error)
-	// EXPERIMENTAL: CountRelationships returns the count of relationships for *pre-registered* filter.
-	ExperimentalCountRelationships(ctx context.Context, in *ExperimentalCountRelationshipsRequest, opts ...grpc.CallOption) (*ExperimentalCountRelationshipsResponse, error)
-	// EXPERIMENTAL: UnregisterRelationshipCounter unregisters an existing filter for counting relationships.
-	ExperimentalUnregisterRelationshipCounter(ctx context.Context, in *ExperimentalUnregisterRelationshipCounterRequest, opts ...grpc.CallOption) (*ExperimentalUnregisterRelationshipCounterResponse, error)
 }
 
 type experimentalServiceClient struct {
@@ -152,73 +119,9 @@ func (x *experimentalServiceBulkExportRelationshipsClient) Recv() (*BulkExportRe
 	return m, nil
 }
 
-// Deprecated: Do not use.
 func (c *experimentalServiceClient) BulkCheckPermission(ctx context.Context, in *BulkCheckPermissionRequest, opts ...grpc.CallOption) (*BulkCheckPermissionResponse, error) {
 	out := new(BulkCheckPermissionResponse)
 	err := c.cc.Invoke(ctx, ExperimentalService_BulkCheckPermission_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalReflectSchema(ctx context.Context, in *ExperimentalReflectSchemaRequest, opts ...grpc.CallOption) (*ExperimentalReflectSchemaResponse, error) {
-	out := new(ExperimentalReflectSchemaResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalReflectSchema_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalComputablePermissions(ctx context.Context, in *ExperimentalComputablePermissionsRequest, opts ...grpc.CallOption) (*ExperimentalComputablePermissionsResponse, error) {
-	out := new(ExperimentalComputablePermissionsResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalComputablePermissions_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalDependentRelations(ctx context.Context, in *ExperimentalDependentRelationsRequest, opts ...grpc.CallOption) (*ExperimentalDependentRelationsResponse, error) {
-	out := new(ExperimentalDependentRelationsResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalDependentRelations_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalDiffSchema(ctx context.Context, in *ExperimentalDiffSchemaRequest, opts ...grpc.CallOption) (*ExperimentalDiffSchemaResponse, error) {
-	out := new(ExperimentalDiffSchemaResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalDiffSchema_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalRegisterRelationshipCounter(ctx context.Context, in *ExperimentalRegisterRelationshipCounterRequest, opts ...grpc.CallOption) (*ExperimentalRegisterRelationshipCounterResponse, error) {
-	out := new(ExperimentalRegisterRelationshipCounterResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalRegisterRelationshipCounter_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalCountRelationships(ctx context.Context, in *ExperimentalCountRelationshipsRequest, opts ...grpc.CallOption) (*ExperimentalCountRelationshipsResponse, error) {
-	out := new(ExperimentalCountRelationshipsResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalCountRelationships_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *experimentalServiceClient) ExperimentalUnregisterRelationshipCounter(ctx context.Context, in *ExperimentalUnregisterRelationshipCounterRequest, opts ...grpc.CallOption) (*ExperimentalUnregisterRelationshipCounterResponse, error) {
-	out := new(ExperimentalUnregisterRelationshipCounterResponse)
-	err := c.cc.Invoke(ctx, ExperimentalService_ExperimentalUnregisterRelationshipCounter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -243,33 +146,7 @@ type ExperimentalServiceServer interface {
 	// relationships from the server. It is resumable, and will return results
 	// in an order determined by the server.
 	BulkExportRelationships(*BulkExportRelationshipsRequest, ExperimentalService_BulkExportRelationshipsServer) error
-	// Deprecated: Do not use.
-	// NOTE: BulkCheckPermission has been promoted to the stable API as "CheckBulkPermission" and the
-	// API will be removed from experimental in a future release.
 	BulkCheckPermission(context.Context, *BulkCheckPermissionRequest) (*BulkCheckPermissionResponse, error)
-	// EXPERIMENTAL: ReflectSchema is an API that allows clients to reflect the schema stored in
-	// SpiceDB. This is useful for clients that need to introspect the schema of a SpiceDB instance.
-	ExperimentalReflectSchema(context.Context, *ExperimentalReflectSchemaRequest) (*ExperimentalReflectSchemaResponse, error)
-	// EXPERIMENTAL: ComputablePermissions is an API that allows clients to request the set of
-	// permissions that compute based off a relation. For example, if a schema has a relation
-	// `viewer` and a permission `view` defined as `permission view = viewer + editor`, then the
-	// computable permissions for the relation `viewer` will include `view`.
-	ExperimentalComputablePermissions(context.Context, *ExperimentalComputablePermissionsRequest) (*ExperimentalComputablePermissionsResponse, error)
-	// EXPERIMENTAL: DependentRelations is an API that allows clients to request the set of
-	// relations and permissions that used to compute a permission, recursively. It is the
-	// inverse of the ComputablePermissions API.
-	ExperimentalDependentRelations(context.Context, *ExperimentalDependentRelationsRequest) (*ExperimentalDependentRelationsResponse, error)
-	// EXPERIMENTAL: DiffSchema is an API that allows clients to request the difference between the
-	// specified schema and the schema stored in SpiceDB. This is useful for clients that need to
-	// introspect the schema of a SpiceDB instance.
-	ExperimentalDiffSchema(context.Context, *ExperimentalDiffSchemaRequest) (*ExperimentalDiffSchemaResponse, error)
-	// EXPERIMENTAL: RegisterRelationshipCounter registers a new filter for counting relationships. A filter must be registered before
-	// a count can be requested.
-	ExperimentalRegisterRelationshipCounter(context.Context, *ExperimentalRegisterRelationshipCounterRequest) (*ExperimentalRegisterRelationshipCounterResponse, error)
-	// EXPERIMENTAL: CountRelationships returns the count of relationships for *pre-registered* filter.
-	ExperimentalCountRelationships(context.Context, *ExperimentalCountRelationshipsRequest) (*ExperimentalCountRelationshipsResponse, error)
-	// EXPERIMENTAL: UnregisterRelationshipCounter unregisters an existing filter for counting relationships.
-	ExperimentalUnregisterRelationshipCounter(context.Context, *ExperimentalUnregisterRelationshipCounterRequest) (*ExperimentalUnregisterRelationshipCounterResponse, error)
 	mustEmbedUnimplementedExperimentalServiceServer()
 }
 
@@ -285,27 +162,6 @@ func (UnimplementedExperimentalServiceServer) BulkExportRelationships(*BulkExpor
 }
 func (UnimplementedExperimentalServiceServer) BulkCheckPermission(context.Context, *BulkCheckPermissionRequest) (*BulkCheckPermissionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BulkCheckPermission not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalReflectSchema(context.Context, *ExperimentalReflectSchemaRequest) (*ExperimentalReflectSchemaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalReflectSchema not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalComputablePermissions(context.Context, *ExperimentalComputablePermissionsRequest) (*ExperimentalComputablePermissionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalComputablePermissions not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalDependentRelations(context.Context, *ExperimentalDependentRelationsRequest) (*ExperimentalDependentRelationsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalDependentRelations not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalDiffSchema(context.Context, *ExperimentalDiffSchemaRequest) (*ExperimentalDiffSchemaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalDiffSchema not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalRegisterRelationshipCounter(context.Context, *ExperimentalRegisterRelationshipCounterRequest) (*ExperimentalRegisterRelationshipCounterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalRegisterRelationshipCounter not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalCountRelationships(context.Context, *ExperimentalCountRelationshipsRequest) (*ExperimentalCountRelationshipsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalCountRelationships not implemented")
-}
-func (UnimplementedExperimentalServiceServer) ExperimentalUnregisterRelationshipCounter(context.Context, *ExperimentalUnregisterRelationshipCounterRequest) (*ExperimentalUnregisterRelationshipCounterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ExperimentalUnregisterRelationshipCounter not implemented")
 }
 func (UnimplementedExperimentalServiceServer) mustEmbedUnimplementedExperimentalServiceServer() {}
 
@@ -385,132 +241,6 @@ func _ExperimentalService_BulkCheckPermission_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ExperimentalService_ExperimentalReflectSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalReflectSchemaRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalReflectSchema(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalReflectSchema_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalReflectSchema(ctx, req.(*ExperimentalReflectSchemaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalComputablePermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalComputablePermissionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalComputablePermissions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalComputablePermissions_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalComputablePermissions(ctx, req.(*ExperimentalComputablePermissionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalDependentRelations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalDependentRelationsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalDependentRelations(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalDependentRelations_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalDependentRelations(ctx, req.(*ExperimentalDependentRelationsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalDiffSchema_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalDiffSchemaRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalDiffSchema(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalDiffSchema_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalDiffSchema(ctx, req.(*ExperimentalDiffSchemaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalRegisterRelationshipCounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalRegisterRelationshipCounterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalRegisterRelationshipCounter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalRegisterRelationshipCounter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalRegisterRelationshipCounter(ctx, req.(*ExperimentalRegisterRelationshipCounterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalCountRelationships_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalCountRelationshipsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalCountRelationships(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalCountRelationships_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalCountRelationships(ctx, req.(*ExperimentalCountRelationshipsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ExperimentalService_ExperimentalUnregisterRelationshipCounter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ExperimentalUnregisterRelationshipCounterRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExperimentalServiceServer).ExperimentalUnregisterRelationshipCounter(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExperimentalService_ExperimentalUnregisterRelationshipCounter_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentalServiceServer).ExperimentalUnregisterRelationshipCounter(ctx, req.(*ExperimentalUnregisterRelationshipCounterRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ExperimentalService_ServiceDesc is the grpc.ServiceDesc for ExperimentalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -521,34 +251,6 @@ var ExperimentalService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BulkCheckPermission",
 			Handler:    _ExperimentalService_BulkCheckPermission_Handler,
-		},
-		{
-			MethodName: "ExperimentalReflectSchema",
-			Handler:    _ExperimentalService_ExperimentalReflectSchema_Handler,
-		},
-		{
-			MethodName: "ExperimentalComputablePermissions",
-			Handler:    _ExperimentalService_ExperimentalComputablePermissions_Handler,
-		},
-		{
-			MethodName: "ExperimentalDependentRelations",
-			Handler:    _ExperimentalService_ExperimentalDependentRelations_Handler,
-		},
-		{
-			MethodName: "ExperimentalDiffSchema",
-			Handler:    _ExperimentalService_ExperimentalDiffSchema_Handler,
-		},
-		{
-			MethodName: "ExperimentalRegisterRelationshipCounter",
-			Handler:    _ExperimentalService_ExperimentalRegisterRelationshipCounter_Handler,
-		},
-		{
-			MethodName: "ExperimentalCountRelationships",
-			Handler:    _ExperimentalService_ExperimentalCountRelationships_Handler,
-		},
-		{
-			MethodName: "ExperimentalUnregisterRelationshipCounter",
-			Handler:    _ExperimentalService_ExperimentalUnregisterRelationshipCounter_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
