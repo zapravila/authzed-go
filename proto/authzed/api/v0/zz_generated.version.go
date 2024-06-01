@@ -2,5 +2,5 @@ package v0
 
 const (
 	BufRepository = "api"
-	BufTag        = "0.1"
+	BufTag        = "c80c505980ad9ea666cec11080b69524cc076a89"
 )
