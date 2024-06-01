@@ -30,6 +30,14 @@ func (m *Relationship) CloneVT() *Relationship {
 	r.Relation = m.Relation
 	r.Subject = m.Subject.CloneVT()
 	r.OptionalCaveat = m.OptionalCaveat.CloneVT()
+	if rhs := m.OptionalDescription; rhs != nil {
+		tmpVal := *rhs
+		r.OptionalDescription = &tmpVal
+	}
+	if rhs := m.OptionalComment; rhs != nil {
+		tmpVal := *rhs
+		r.OptionalComment = &tmpVal
+	}
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = make([]byte, len(m.unknownFields))
 		copy(r.unknownFields, m.unknownFields)
@@ -627,14 +635,14 @@ func (m *Relationship) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.OptionalComment != nil {
 		i -= len(*m.OptionalComment)
 		copy(dAtA[i:], *m.OptionalComment)
-		i = encodeVarint(dAtA, i, uint64(len(*m.OptionalComment)))
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(*m.OptionalComment)))
 		i--
 		dAtA[i] = 0x32
 	}
 	if m.OptionalDescription != nil {
 		i -= len(*m.OptionalDescription)
 		copy(dAtA[i:], *m.OptionalDescription)
-		i = encodeVarint(dAtA, i, uint64(len(*m.OptionalDescription)))
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(*m.OptionalDescription)))
 		i--
 		dAtA[i] = 0x2a
 	}
@@ -1211,11 +1219,11 @@ func (m *Relationship) SizeVT() (n int) {
 	}
 	if m.OptionalDescription != nil {
 		l = len(*m.OptionalDescription)
-		n += 1 + l + sov(uint64(l))
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	if m.OptionalComment != nil {
 		l = len(*m.OptionalComment)
-		n += 1 + l + sov(uint64(l))
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
 	n += len(m.unknownFields)
 	return n
@@ -1592,7 +1600,7 @@ func (m *Relationship) UnmarshalVT(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflow
+					return protohelpers.ErrIntOverflow
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1606,11 +1614,11 @@ func (m *Relationship) UnmarshalVT(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLength
+				return protohelpers.ErrInvalidLength
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLength
+				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
@@ -1625,7 +1633,7 @@ func (m *Relationship) UnmarshalVT(dAtA []byte) error {
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
-					return ErrIntOverflow
+					return protohelpers.ErrIntOverflow
 				}
 				if iNdEx >= l {
 					return io.ErrUnexpectedEOF
@@ -1639,11 +1647,11 @@ func (m *Relationship) UnmarshalVT(dAtA []byte) error {
 			}
 			intStringLen := int(stringLen)
 			if intStringLen < 0 {
-				return ErrInvalidLength
+				return protohelpers.ErrInvalidLength
 			}
 			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
-				return ErrInvalidLength
+				return protohelpers.ErrInvalidLength
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
