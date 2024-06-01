@@ -30,6 +30,14 @@ func (m *Relationship) CloneVT() *Relationship {
 	r.Relation = m.Relation
 	r.Subject = m.Subject.CloneVT()
 	r.OptionalCaveat = m.OptionalCaveat.CloneVT()
+	if rhs := m.OptionalDescription; rhs != nil {
+		tmpVal := *rhs
+		r.OptionalDescription = &tmpVal
+	}
+	if rhs := m.OptionalComment; rhs != nil {
+		tmpVal := *rhs
+		r.OptionalComment = &tmpVal
+	}
 	if len(m.unknownFields) > 0 {
 		r.unknownFields = make([]byte, len(m.unknownFields))
 		copy(r.unknownFields, m.unknownFields)
@@ -272,6 +280,12 @@ func (this *Relationship) EqualVT(that *Relationship) bool {
 		return false
 	}
 	if !this.OptionalCaveat.EqualVT(that.OptionalCaveat) {
+		return false
+	}
+	if p, q := this.OptionalDescription, that.OptionalDescription; (p == nil && q != nil) || (p != nil && (q == nil || *p != *q)) {
+		return false
+	}
+	if p, q := this.OptionalComment, that.OptionalComment; (p == nil && q != nil) || (p != nil && (q == nil || *p != *q)) {
 		return false
 	}
 	return string(this.unknownFields) == string(that.unknownFields)
@@ -617,6 +631,20 @@ func (m *Relationship) MarshalToSizedBufferVT(dAtA []byte) (int, error) {
 	if m.unknownFields != nil {
 		i -= len(m.unknownFields)
 		copy(dAtA[i:], m.unknownFields)
+	}
+	if m.OptionalComment != nil {
+		i -= len(*m.OptionalComment)
+		copy(dAtA[i:], *m.OptionalComment)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(*m.OptionalComment)))
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.OptionalDescription != nil {
+		i -= len(*m.OptionalDescription)
+		copy(dAtA[i:], *m.OptionalDescription)
+		i = protohelpers.EncodeVarint(dAtA, i, uint64(len(*m.OptionalDescription)))
+		i--
+		dAtA[i] = 0x2a
 	}
 	if m.OptionalCaveat != nil {
 		size, err := m.OptionalCaveat.MarshalToSizedBufferVT(dAtA[:i])
@@ -1189,6 +1217,14 @@ func (m *Relationship) SizeVT() (n int) {
 		l = m.OptionalCaveat.SizeVT()
 		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
 	}
+	if m.OptionalDescription != nil {
+		l = len(*m.OptionalDescription)
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
+	if m.OptionalComment != nil {
+		l = len(*m.OptionalComment)
+		n += 1 + l + protohelpers.SizeOfVarint(uint64(l))
+	}
 	n += len(m.unknownFields)
 	return n
 }
@@ -1556,6 +1592,72 @@ func (m *Relationship) UnmarshalVT(dAtA []byte) error {
 			if err := m.OptionalCaveat.UnmarshalVT(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OptionalDescription", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			s := string(dAtA[iNdEx:postIndex])
+			m.OptionalDescription = &s
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field OptionalComment", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protohelpers.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return protohelpers.ErrInvalidLength
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			s := string(dAtA[iNdEx:postIndex])
+			m.OptionalComment = &s
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

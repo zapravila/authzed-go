@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -31,16 +32,51 @@ var (
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
 	_ = anypb.Any{}
+	_ = sort.Sort
 )
 
 // Validate checks the field values on FieldRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *FieldRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FieldRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FieldRulesMultiError, or
+// nil if none found.
+func (m *FieldRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FieldRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
-	if v, ok := interface{}(m.GetMessage()).(interface{ Validate() error }); ok {
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetMessage()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, FieldRulesValidationError{
+					field:  "Message",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, FieldRulesValidationError{
+					field:  "Message",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMessage()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return FieldRulesValidationError{
 				field:  "Message",
@@ -50,11 +86,39 @@ func (m *FieldRules) Validate() error {
 		}
 	}
 
-	switch m.Type.(type) {
-
+	switch v := m.Type.(type) {
 	case *FieldRules_Float:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetFloat()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetFloat()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Float",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Float",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetFloat()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Float",
@@ -65,8 +129,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Double:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetDouble()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetDouble()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Double",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Double",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetDouble()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Double",
@@ -77,8 +170,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Int32:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetInt32()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetInt32()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Int32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Int32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetInt32()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Int32",
@@ -89,8 +211,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Int64:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetInt64()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetInt64()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Int64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Int64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetInt64()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Int64",
@@ -101,8 +252,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Uint32:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetUint32()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetUint32()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Uint32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Uint32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetUint32()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Uint32",
@@ -113,8 +293,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Uint64:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetUint64()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetUint64()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Uint64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Uint64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetUint64()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Uint64",
@@ -125,8 +334,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Sint32:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetSint32()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetSint32()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sint32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sint32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetSint32()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Sint32",
@@ -137,8 +375,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Sint64:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetSint64()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetSint64()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sint64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sint64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetSint64()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Sint64",
@@ -149,8 +416,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Fixed32:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetFixed32()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetFixed32()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Fixed32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Fixed32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetFixed32()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Fixed32",
@@ -161,8 +457,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Fixed64:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetFixed64()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetFixed64()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Fixed64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Fixed64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetFixed64()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Fixed64",
@@ -173,8 +498,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Sfixed32:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetSfixed32()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetSfixed32()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sfixed32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sfixed32",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetSfixed32()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Sfixed32",
@@ -185,8 +539,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Sfixed64:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetSfixed64()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetSfixed64()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sfixed64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Sfixed64",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetSfixed64()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Sfixed64",
@@ -197,8 +580,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Bool:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetBool()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetBool()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Bool",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Bool",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetBool()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Bool",
@@ -209,8 +621,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_String_:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetString_()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetString_()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "String_",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "String_",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetString_()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "String_",
@@ -221,8 +662,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Bytes:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetBytes()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetBytes()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Bytes",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Bytes",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetBytes()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Bytes",
@@ -233,8 +703,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Enum:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetEnum()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetEnum()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Enum",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Enum",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetEnum()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Enum",
@@ -245,8 +744,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Repeated:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetRepeated()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetRepeated()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Repeated",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Repeated",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRepeated()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Repeated",
@@ -257,8 +785,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Map:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetMap()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetMap()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Map",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Map",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMap()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Map",
@@ -269,8 +826,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Any:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetAny()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetAny()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Any",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Any",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAny()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Any",
@@ -281,8 +867,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Duration:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetDuration()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetDuration()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Duration",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Duration",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetDuration()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Duration",
@@ -293,8 +908,37 @@ func (m *FieldRules) Validate() error {
 		}
 
 	case *FieldRules_Timestamp:
+		if v == nil {
+			err := FieldRulesValidationError{
+				field:  "Type",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-		if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(m.GetTimestamp()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Timestamp",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, FieldRulesValidationError{
+						field:  "Timestamp",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FieldRulesValidationError{
 					field:  "Timestamp",
@@ -304,10 +948,32 @@ func (m *FieldRules) Validate() error {
 			}
 		}
 
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return FieldRulesMultiError(errors)
 	}
 
 	return nil
 }
+
+// FieldRulesMultiError is an error wrapping multiple validation errors
+// returned by FieldRules.ValidateAll() if the designated constraints aren't met.
+type FieldRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FieldRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FieldRulesMultiError) AllErrors() []error { return m }
 
 // FieldRulesValidationError is the validation error returned by
 // FieldRules.Validate if the designated constraints aren't met.
@@ -364,11 +1030,26 @@ var _ interface {
 } = FieldRulesValidationError{}
 
 // Validate checks the field values on FloatRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *FloatRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FloatRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FloatRulesMultiError, or
+// nil if none found.
+func (m *FloatRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FloatRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -382,8 +1063,28 @@ func (m *FloatRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return FloatRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// FloatRulesMultiError is an error wrapping multiple validation errors
+// returned by FloatRules.ValidateAll() if the designated constraints aren't met.
+type FloatRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FloatRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FloatRulesMultiError) AllErrors() []error { return m }
 
 // FloatRulesValidationError is the validation error returned by
 // FloatRules.Validate if the designated constraints aren't met.
@@ -440,12 +1141,26 @@ var _ interface {
 } = FloatRulesValidationError{}
 
 // Validate checks the field values on DoubleRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *DoubleRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DoubleRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DoubleRulesMultiError, or
+// nil if none found.
+func (m *DoubleRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DoubleRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -459,8 +1174,28 @@ func (m *DoubleRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return DoubleRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// DoubleRulesMultiError is an error wrapping multiple validation errors
+// returned by DoubleRules.ValidateAll() if the designated constraints aren't met.
+type DoubleRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DoubleRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DoubleRulesMultiError) AllErrors() []error { return m }
 
 // DoubleRulesValidationError is the validation error returned by
 // DoubleRules.Validate if the designated constraints aren't met.
@@ -517,11 +1252,26 @@ var _ interface {
 } = DoubleRulesValidationError{}
 
 // Validate checks the field values on Int32Rules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Int32Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Int32Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in Int32RulesMultiError, or
+// nil if none found.
+func (m *Int32Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Int32Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -535,8 +1285,28 @@ func (m *Int32Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return Int32RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// Int32RulesMultiError is an error wrapping multiple validation errors
+// returned by Int32Rules.ValidateAll() if the designated constraints aren't met.
+type Int32RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Int32RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Int32RulesMultiError) AllErrors() []error { return m }
 
 // Int32RulesValidationError is the validation error returned by
 // Int32Rules.Validate if the designated constraints aren't met.
@@ -593,11 +1363,26 @@ var _ interface {
 } = Int32RulesValidationError{}
 
 // Validate checks the field values on Int64Rules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Int64Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Int64Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in Int64RulesMultiError, or
+// nil if none found.
+func (m *Int64Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Int64Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -611,8 +1396,28 @@ func (m *Int64Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return Int64RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// Int64RulesMultiError is an error wrapping multiple validation errors
+// returned by Int64Rules.ValidateAll() if the designated constraints aren't met.
+type Int64RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Int64RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Int64RulesMultiError) AllErrors() []error { return m }
 
 // Int64RulesValidationError is the validation error returned by
 // Int64Rules.Validate if the designated constraints aren't met.
@@ -669,12 +1474,26 @@ var _ interface {
 } = Int64RulesValidationError{}
 
 // Validate checks the field values on UInt32Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *UInt32Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UInt32Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in UInt32RulesMultiError, or
+// nil if none found.
+func (m *UInt32Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UInt32Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -688,8 +1507,28 @@ func (m *UInt32Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return UInt32RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// UInt32RulesMultiError is an error wrapping multiple validation errors
+// returned by UInt32Rules.ValidateAll() if the designated constraints aren't met.
+type UInt32RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UInt32RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UInt32RulesMultiError) AllErrors() []error { return m }
 
 // UInt32RulesValidationError is the validation error returned by
 // UInt32Rules.Validate if the designated constraints aren't met.
@@ -746,12 +1585,26 @@ var _ interface {
 } = UInt32RulesValidationError{}
 
 // Validate checks the field values on UInt64Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *UInt64Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UInt64Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in UInt64RulesMultiError, or
+// nil if none found.
+func (m *UInt64Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UInt64Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -765,8 +1618,28 @@ func (m *UInt64Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return UInt64RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// UInt64RulesMultiError is an error wrapping multiple validation errors
+// returned by UInt64Rules.ValidateAll() if the designated constraints aren't met.
+type UInt64RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UInt64RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UInt64RulesMultiError) AllErrors() []error { return m }
 
 // UInt64RulesValidationError is the validation error returned by
 // UInt64Rules.Validate if the designated constraints aren't met.
@@ -823,12 +1696,26 @@ var _ interface {
 } = UInt64RulesValidationError{}
 
 // Validate checks the field values on SInt32Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *SInt32Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SInt32Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SInt32RulesMultiError, or
+// nil if none found.
+func (m *SInt32Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SInt32Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -842,8 +1729,28 @@ func (m *SInt32Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return SInt32RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// SInt32RulesMultiError is an error wrapping multiple validation errors
+// returned by SInt32Rules.ValidateAll() if the designated constraints aren't met.
+type SInt32RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SInt32RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SInt32RulesMultiError) AllErrors() []error { return m }
 
 // SInt32RulesValidationError is the validation error returned by
 // SInt32Rules.Validate if the designated constraints aren't met.
@@ -900,12 +1807,26 @@ var _ interface {
 } = SInt32RulesValidationError{}
 
 // Validate checks the field values on SInt64Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *SInt64Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SInt64Rules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SInt64RulesMultiError, or
+// nil if none found.
+func (m *SInt64Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SInt64Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -919,8 +1840,28 @@ func (m *SInt64Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return SInt64RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// SInt64RulesMultiError is an error wrapping multiple validation errors
+// returned by SInt64Rules.ValidateAll() if the designated constraints aren't met.
+type SInt64RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SInt64RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SInt64RulesMultiError) AllErrors() []error { return m }
 
 // SInt64RulesValidationError is the validation error returned by
 // SInt64Rules.Validate if the designated constraints aren't met.
@@ -977,12 +1918,26 @@ var _ interface {
 } = SInt64RulesValidationError{}
 
 // Validate checks the field values on Fixed32Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Fixed32Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Fixed32Rules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in Fixed32RulesMultiError, or
+// nil if none found.
+func (m *Fixed32Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Fixed32Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -996,8 +1951,28 @@ func (m *Fixed32Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return Fixed32RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// Fixed32RulesMultiError is an error wrapping multiple validation errors
+// returned by Fixed32Rules.ValidateAll() if the designated constraints aren't met.
+type Fixed32RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Fixed32RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Fixed32RulesMultiError) AllErrors() []error { return m }
 
 // Fixed32RulesValidationError is the validation error returned by
 // Fixed32Rules.Validate if the designated constraints aren't met.
@@ -1054,12 +2029,26 @@ var _ interface {
 } = Fixed32RulesValidationError{}
 
 // Validate checks the field values on Fixed64Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *Fixed64Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Fixed64Rules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in Fixed64RulesMultiError, or
+// nil if none found.
+func (m *Fixed64Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Fixed64Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -1073,8 +2062,28 @@ func (m *Fixed64Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return Fixed64RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// Fixed64RulesMultiError is an error wrapping multiple validation errors
+// returned by Fixed64Rules.ValidateAll() if the designated constraints aren't met.
+type Fixed64RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m Fixed64RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m Fixed64RulesMultiError) AllErrors() []error { return m }
 
 // Fixed64RulesValidationError is the validation error returned by
 // Fixed64Rules.Validate if the designated constraints aren't met.
@@ -1131,12 +2140,26 @@ var _ interface {
 } = Fixed64RulesValidationError{}
 
 // Validate checks the field values on SFixed32Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *SFixed32Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SFixed32Rules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SFixed32RulesMultiError, or
+// nil if none found.
+func (m *SFixed32Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SFixed32Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -1150,8 +2173,29 @@ func (m *SFixed32Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return SFixed32RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// SFixed32RulesMultiError is an error wrapping multiple validation errors
+// returned by SFixed32Rules.ValidateAll() if the designated constraints
+// aren't met.
+type SFixed32RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SFixed32RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SFixed32RulesMultiError) AllErrors() []error { return m }
 
 // SFixed32RulesValidationError is the validation error returned by
 // SFixed32Rules.Validate if the designated constraints aren't met.
@@ -1208,12 +2252,26 @@ var _ interface {
 } = SFixed32RulesValidationError{}
 
 // Validate checks the field values on SFixed64Rules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *SFixed64Rules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SFixed64Rules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in SFixed64RulesMultiError, or
+// nil if none found.
+func (m *SFixed64Rules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SFixed64Rules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -1227,8 +2285,29 @@ func (m *SFixed64Rules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return SFixed64RulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// SFixed64RulesMultiError is an error wrapping multiple validation errors
+// returned by SFixed64Rules.ValidateAll() if the designated constraints
+// aren't met.
+type SFixed64RulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SFixed64RulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SFixed64RulesMultiError) AllErrors() []error { return m }
 
 // SFixed64RulesValidationError is the validation error returned by
 // SFixed64Rules.Validate if the designated constraints aren't met.
@@ -1285,16 +2364,51 @@ var _ interface {
 } = SFixed64RulesValidationError{}
 
 // Validate checks the field values on BoolRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *BoolRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BoolRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BoolRulesMultiError, or nil
+// if none found.
+func (m *BoolRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BoolRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Const
+
+	if len(errors) > 0 {
+		return BoolRulesMultiError(errors)
+	}
 
 	return nil
 }
+
+// BoolRulesMultiError is an error wrapping multiple validation errors returned
+// by BoolRules.ValidateAll() if the designated constraints aren't met.
+type BoolRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BoolRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BoolRulesMultiError) AllErrors() []error { return m }
 
 // BoolRulesValidationError is the validation error returned by
 // BoolRules.Validate if the designated constraints aren't met.
@@ -1351,12 +2465,26 @@ var _ interface {
 } = BoolRulesValidationError{}
 
 // Validate checks the field values on StringRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *StringRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on StringRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in StringRulesMultiError, or
+// nil if none found.
+func (m *StringRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *StringRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -1386,42 +2514,153 @@ func (m *StringRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
-	switch m.WellKnown.(type) {
-
+	switch v := m.WellKnown.(type) {
 	case *StringRules_Email:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Email
-
 	case *StringRules_Hostname:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Hostname
-
 	case *StringRules_Ip:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ip
-
 	case *StringRules_Ipv4:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ipv4
-
 	case *StringRules_Ipv6:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ipv6
-
 	case *StringRules_Uri:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Uri
-
 	case *StringRules_UriRef:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for UriRef
-
 	case *StringRules_Address:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Address
-
 	case *StringRules_Uuid:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Uuid
-
 	case *StringRules_WellKnownRegex:
+		if v == nil {
+			err := StringRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for WellKnownRegex
+	default:
+		_ = v // ensures v is used
+	}
 
+	if len(errors) > 0 {
+		return StringRulesMultiError(errors)
 	}
 
 	return nil
 }
+
+// StringRulesMultiError is an error wrapping multiple validation errors
+// returned by StringRules.ValidateAll() if the designated constraints aren't met.
+type StringRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m StringRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m StringRulesMultiError) AllErrors() []error { return m }
 
 // StringRulesValidationError is the validation error returned by
 // StringRules.Validate if the designated constraints aren't met.
@@ -1478,11 +2717,26 @@ var _ interface {
 } = StringRulesValidationError{}
 
 // Validate checks the field values on BytesRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *BytesRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on BytesRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in BytesRulesMultiError, or
+// nil if none found.
+func (m *BytesRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *BytesRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
@@ -1502,21 +2756,69 @@ func (m *BytesRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
-	switch m.WellKnown.(type) {
-
+	switch v := m.WellKnown.(type) {
 	case *BytesRules_Ip:
+		if v == nil {
+			err := BytesRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ip
-
 	case *BytesRules_Ipv4:
+		if v == nil {
+			err := BytesRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ipv4
-
 	case *BytesRules_Ipv6:
+		if v == nil {
+			err := BytesRulesValidationError{
+				field:  "WellKnown",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 		// no validation rules for Ipv6
+	default:
+		_ = v // ensures v is used
+	}
 
+	if len(errors) > 0 {
+		return BytesRulesMultiError(errors)
 	}
 
 	return nil
 }
+
+// BytesRulesMultiError is an error wrapping multiple validation errors
+// returned by BytesRules.ValidateAll() if the designated constraints aren't met.
+type BytesRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m BytesRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m BytesRulesMultiError) AllErrors() []error { return m }
 
 // BytesRulesValidationError is the validation error returned by
 // BytesRules.Validate if the designated constraints aren't met.
@@ -1573,18 +2875,53 @@ var _ interface {
 } = BytesRulesValidationError{}
 
 // Validate checks the field values on EnumRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *EnumRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on EnumRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in EnumRulesMultiError, or nil
+// if none found.
+func (m *EnumRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *EnumRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Const
 
 	// no validation rules for DefinedOnly
 
+	if len(errors) > 0 {
+		return EnumRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// EnumRulesMultiError is an error wrapping multiple validation errors returned
+// by EnumRules.ValidateAll() if the designated constraints aren't met.
+type EnumRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m EnumRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m EnumRulesMultiError) AllErrors() []error { return m }
 
 // EnumRulesValidationError is the validation error returned by
 // EnumRules.Validate if the designated constraints aren't met.
@@ -1641,19 +2978,53 @@ var _ interface {
 } = EnumRulesValidationError{}
 
 // Validate checks the field values on MessageRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *MessageRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MessageRules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MessageRulesMultiError, or
+// nil if none found.
+func (m *MessageRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MessageRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for Skip
 
 	// no validation rules for Required
 
+	if len(errors) > 0 {
+		return MessageRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// MessageRulesMultiError is an error wrapping multiple validation errors
+// returned by MessageRules.ValidateAll() if the designated constraints aren't met.
+type MessageRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MessageRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MessageRulesMultiError) AllErrors() []error { return m }
 
 // MessageRulesValidationError is the validation error returned by
 // MessageRules.Validate if the designated constraints aren't met.
@@ -1710,12 +3081,26 @@ var _ interface {
 } = MessageRulesValidationError{}
 
 // Validate checks the field values on RepeatedRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *RepeatedRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on RepeatedRules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in RepeatedRulesMultiError, or
+// nil if none found.
+func (m *RepeatedRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *RepeatedRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for MinItems
 
@@ -1723,7 +3108,26 @@ func (m *RepeatedRules) Validate() error {
 
 	// no validation rules for Unique
 
-	if v, ok := interface{}(m.GetItems()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetItems()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, RepeatedRulesValidationError{
+					field:  "Items",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, RepeatedRulesValidationError{
+					field:  "Items",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetItems()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RepeatedRulesValidationError{
 				field:  "Items",
@@ -1735,8 +3139,29 @@ func (m *RepeatedRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return RepeatedRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// RepeatedRulesMultiError is an error wrapping multiple validation errors
+// returned by RepeatedRules.ValidateAll() if the designated constraints
+// aren't met.
+type RepeatedRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m RepeatedRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m RepeatedRulesMultiError) AllErrors() []error { return m }
 
 // RepeatedRulesValidationError is the validation error returned by
 // RepeatedRules.Validate if the designated constraints aren't met.
@@ -1793,11 +3218,26 @@ var _ interface {
 } = RepeatedRulesValidationError{}
 
 // Validate checks the field values on MapRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *MapRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on MapRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in MapRulesMultiError, or nil
+// if none found.
+func (m *MapRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *MapRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
+
+	var errors []error
 
 	// no validation rules for MinPairs
 
@@ -1805,7 +3245,26 @@ func (m *MapRules) Validate() error {
 
 	// no validation rules for NoSparse
 
-	if v, ok := interface{}(m.GetKeys()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetKeys()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MapRulesValidationError{
+					field:  "Keys",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MapRulesValidationError{
+					field:  "Keys",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetKeys()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MapRulesValidationError{
 				field:  "Keys",
@@ -1815,7 +3274,26 @@ func (m *MapRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetValues()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetValues()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MapRulesValidationError{
+					field:  "Values",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MapRulesValidationError{
+					field:  "Values",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetValues()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MapRulesValidationError{
 				field:  "Values",
@@ -1827,8 +3305,28 @@ func (m *MapRules) Validate() error {
 
 	// no validation rules for IgnoreEmpty
 
+	if len(errors) > 0 {
+		return MapRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// MapRulesMultiError is an error wrapping multiple validation errors returned
+// by MapRules.ValidateAll() if the designated constraints aren't met.
+type MapRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m MapRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m MapRulesMultiError) AllErrors() []error { return m }
 
 // MapRulesValidationError is the validation error returned by
 // MapRules.Validate if the designated constraints aren't met.
@@ -1885,16 +3383,51 @@ var _ interface {
 } = MapRulesValidationError{}
 
 // Validate checks the field values on AnyRules with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *AnyRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AnyRules with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in AnyRulesMultiError, or nil
+// if none found.
+func (m *AnyRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AnyRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Required
+
+	if len(errors) > 0 {
+		return AnyRulesMultiError(errors)
+	}
 
 	return nil
 }
+
+// AnyRulesMultiError is an error wrapping multiple validation errors returned
+// by AnyRules.ValidateAll() if the designated constraints aren't met.
+type AnyRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AnyRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AnyRulesMultiError) AllErrors() []error { return m }
 
 // AnyRulesValidationError is the validation error returned by
 // AnyRules.Validate if the designated constraints aren't met.
@@ -1951,16 +3484,49 @@ var _ interface {
 } = AnyRulesValidationError{}
 
 // Validate checks the field values on DurationRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *DurationRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on DurationRules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in DurationRulesMultiError, or
+// nil if none found.
+func (m *DurationRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *DurationRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Required
 
-	if v, ok := interface{}(m.GetConst()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetConst()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Const",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Const",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConst()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DurationRulesValidationError{
 				field:  "Const",
@@ -1970,7 +3536,26 @@ func (m *DurationRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetLt()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Lt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Lt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DurationRulesValidationError{
 				field:  "Lt",
@@ -1980,7 +3565,26 @@ func (m *DurationRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetLte()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLte()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Lte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Lte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLte()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DurationRulesValidationError{
 				field:  "Lte",
@@ -1990,7 +3594,26 @@ func (m *DurationRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetGt()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetGt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Gt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Gt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetGt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DurationRulesValidationError{
 				field:  "Gt",
@@ -2000,7 +3623,26 @@ func (m *DurationRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetGte()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetGte()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Gte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, DurationRulesValidationError{
+					field:  "Gte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetGte()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return DurationRulesValidationError{
 				field:  "Gte",
@@ -2013,7 +3655,26 @@ func (m *DurationRules) Validate() error {
 	for idx, item := range m.GetIn() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, DurationRulesValidationError{
+						field:  fmt.Sprintf("In[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, DurationRulesValidationError{
+						field:  fmt.Sprintf("In[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return DurationRulesValidationError{
 					field:  fmt.Sprintf("In[%v]", idx),
@@ -2028,7 +3689,26 @@ func (m *DurationRules) Validate() error {
 	for idx, item := range m.GetNotIn() {
 		_, _ = idx, item
 
-		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, DurationRulesValidationError{
+						field:  fmt.Sprintf("NotIn[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, DurationRulesValidationError{
+						field:  fmt.Sprintf("NotIn[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return DurationRulesValidationError{
 					field:  fmt.Sprintf("NotIn[%v]", idx),
@@ -2040,8 +3720,29 @@ func (m *DurationRules) Validate() error {
 
 	}
 
+	if len(errors) > 0 {
+		return DurationRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// DurationRulesMultiError is an error wrapping multiple validation errors
+// returned by DurationRules.ValidateAll() if the designated constraints
+// aren't met.
+type DurationRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m DurationRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m DurationRulesMultiError) AllErrors() []error { return m }
 
 // DurationRulesValidationError is the validation error returned by
 // DurationRules.Validate if the designated constraints aren't met.
@@ -2098,16 +3799,49 @@ var _ interface {
 } = DurationRulesValidationError{}
 
 // Validate checks the field values on TimestampRules with the rules defined in
-// the proto definition for this message. If any rules are violated, an error
-// is returned.
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
 func (m *TimestampRules) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TimestampRules with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in TimestampRulesMultiError,
+// or nil if none found.
+func (m *TimestampRules) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TimestampRules) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
+	var errors []error
+
 	// no validation rules for Required
 
-	if v, ok := interface{}(m.GetConst()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetConst()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Const",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Const",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConst()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Const",
@@ -2117,7 +3851,26 @@ func (m *TimestampRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetLt()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Lt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Lt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Lt",
@@ -2127,7 +3880,26 @@ func (m *TimestampRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetLte()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetLte()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Lte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Lte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetLte()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Lte",
@@ -2137,7 +3909,26 @@ func (m *TimestampRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetGt()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetGt()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Gt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Gt",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetGt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Gt",
@@ -2147,7 +3938,26 @@ func (m *TimestampRules) Validate() error {
 		}
 	}
 
-	if v, ok := interface{}(m.GetGte()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetGte()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Gte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Gte",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetGte()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Gte",
@@ -2161,7 +3971,26 @@ func (m *TimestampRules) Validate() error {
 
 	// no validation rules for GtNow
 
-	if v, ok := interface{}(m.GetWithin()).(interface{ Validate() error }); ok {
+	if all {
+		switch v := interface{}(m.GetWithin()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Within",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, TimestampRulesValidationError{
+					field:  "Within",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetWithin()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TimestampRulesValidationError{
 				field:  "Within",
@@ -2171,8 +4000,29 @@ func (m *TimestampRules) Validate() error {
 		}
 	}
 
+	if len(errors) > 0 {
+		return TimestampRulesMultiError(errors)
+	}
+
 	return nil
 }
+
+// TimestampRulesMultiError is an error wrapping multiple validation errors
+// returned by TimestampRules.ValidateAll() if the designated constraints
+// aren't met.
+type TimestampRulesMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TimestampRulesMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TimestampRulesMultiError) AllErrors() []error { return m }
 
 // TimestampRulesValidationError is the validation error returned by
 // TimestampRules.Validate if the designated constraints aren't met.
