@@ -7,12 +7,13 @@ import (
 	"strings"
 	"time"
 
-	v1 "github.com/authzed/authzed-go/proto/authzed/api/v1"
 	"github.com/cenkalti/backoff/v4"
 	"github.com/samber/lo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	v1 "github.com/authzed/authzed-go/proto/authzed/api/v1"
 )
 
 // ConflictStrategy is an enumeration type that represents the strategy to be used
@@ -91,6 +92,9 @@ func (rc *RetryableClient) RetryableBulkImportRelationships(ctx context.Context,
 	})
 
 	_, err = bulkImportClient.CloseAndRecv() // transaction commit happens here
+	if err == nil {
+		return nil
+	}
 
 	// Failure to commit transaction means the stream is closed, so it can't be reused any further
 	// The retry will be done using WriteRelationships instead of BulkImportRelationships
@@ -98,31 +102,23 @@ func (rc *RetryableClient) RetryableBulkImportRelationships(ctx context.Context,
 	retryable := isRetryableError(err)
 	conflict := isAlreadyExistsError(err)
 	canceled, cancelErr := isCanceledError(ctx.Err(), err)
-	unknown := !retryable && !conflict && !canceled && err != nil
 
 	switch {
 	case canceled:
-
 		return cancelErr
-	case unknown:
-
-		return fmt.Errorf("error finalizing write of %d relationships: %w", len(relationships), err)
 	case conflict && conflictStrategy == Skip:
-
+		return nil
 	case retryable || (conflict && conflictStrategy == Touch):
 		err = rc.writeBatchesWithRetry(ctx, relationships)
 		if err != nil {
 			return fmt.Errorf("failed to write relationships after retry: %w", err)
 		}
+		return nil
 	case conflict && conflictStrategy == Fail:
 		return fmt.Errorf("duplicate relationships found")
-
 	default:
-
 		return fmt.Errorf("error finalizing write of %d relationships: %w", len(relationships), err)
 	}
-
-	return nil
 }
 
 func (rc *RetryableClient) writeBatchesWithRetry(ctx context.Context, relationships []*v1.Relationship) error {
@@ -134,7 +130,7 @@ func (rc *RetryableClient) writeBatchesWithRetry(ctx context.Context, relationsh
 
 	currentRetries := 0
 
-	updates := lo.Map[*v1.Relationship, *v1.RelationshipUpdate](relationships, func(item *v1.Relationship, index int) *v1.RelationshipUpdate {
+	updates := lo.Map[*v1.Relationship, *v1.RelationshipUpdate](relationships, func(item *v1.Relationship, _ int) *v1.RelationshipUpdate {
 		return &v1.RelationshipUpdate{
 			Relationship: item,
 			Operation:    v1.RelationshipUpdate_OPERATION_TOUCH,

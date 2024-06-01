@@ -20,6 +20,7 @@ const (
 
 	// RequestDebugInformation, if specified in a request header, asks SpiceDB to return debug information
 	// for the API call (if applicable and supported).
+	// NOTE: deprecated in favor of setting with_tracing on Check requests.
 	// Value: `1`
 	RequestDebugInformation BoolRequestMetadataHeaderKey = "io.spicedb.requestdebuginfo"
 
@@ -28,6 +29,11 @@ const (
 	// the New Enemy Problem. This is only used with the CockroachDB datastore,
 	// and only if user-provided request overlap is enabled.
 	RequestOverlapKey RequestMetadataHeaderKey = "io.spicedb.requestoverlapkey"
+
+	// RequestIDKey, if specified in a request header, will propagate the given string value
+	// through SpiceDB for the lifetime of the request. This can be used to correlate logs
+	// and traces with a specific request.
+	RequestIDKey RequestMetadataHeaderKey = "x-request-id"
 )
 
 // AddRequestHeaders returns a new context with the given values as request headers.
@@ -52,4 +58,8 @@ func SetRequestHeaders(ctx context.Context, values map[RequestMetadataHeaderKey]
 // WithOverlapKey returns a new context with the overlap key set.
 func WithOverlapKey(ctx context.Context, key string) context.Context {
 	return metadata.AppendToOutgoingContext(ctx, string(RequestOverlapKey), key)
+}
+
+func WithRequestID(ctx context.Context, requestID string) context.Context {
+	return metadata.AppendToOutgoingContext(ctx, string(RequestIDKey), requestID)
 }

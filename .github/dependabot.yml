@@ -4,6 +4,25 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     labels:
       - "area/dependencies"
+    groups:
+      go-mod:
+        patterns: ["*"]
+  - package-ecosystem: "gomod"
+    directory: "/magefiles"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "area/dependencies"
+    groups:
+      go-mod-magefiles:
+        patterns: ["*"]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns: ["*"]
