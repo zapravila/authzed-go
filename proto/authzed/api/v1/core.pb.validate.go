@@ -189,11 +189,33 @@ func (m *Relationship) validate(all bool) error {
 	}
 
 	if m.OptionalDescription != nil {
-		// no validation rules for OptionalDescription
+
+		if len(m.GetOptionalDescription()) > 1024 {
+			err := RelationshipValidationError{
+				field:  "OptionalDescription",
+				reason: "value length must be at most 1024 bytes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 	}
 
 	if m.OptionalComment != nil {
-		// no validation rules for OptionalComment
+
+		if len(m.GetOptionalComment()) > 4096 {
+			err := RelationshipValidationError{
+				field:  "OptionalComment",
+				reason: "value length must be at most 4096 bytes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 	}
 
 	if len(errors) > 0 {
