@@ -23,21 +23,21 @@ plugins:
     out: "../proto"
     opt: "paths=source_relative,lang=go"
   # Grpc-gateway
-  - local:
-      [
-        "go",
-        "run",
-        "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway",
-      ]
-    out: "../proto"
-    opt: "paths=source_relative"
+  # - local:
+  #     [
+  #       "go",
+  #       "run",
+  #       "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway",
+  #     ]
+  #   out: "../proto"
+  #   opt: "paths=source_relative"
   # Openapi V2
-  - out: "../proto"
-    local:
-      [
-        "go",
-        "run",
-        "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
-      ]
-    strategy: "all"
-    opt: "allow_merge=true"
+  # - out: "../proto"
+  #   local:
+  #     [
+  #       "go",
+  #       "run",
+  #       "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
+  #     ]
+  #   strategy: "all"
+  #   opt: "allow_merge=true"

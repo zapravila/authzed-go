@@ -2768,11 +2768,11 @@
         },
         "optionalDescription": {
           "type": "string",
-          "title": "[ (validate.rules).string.ignore_empty = true ];"
+          "title": "[ (validate.rules).string.required = false ];"
         },
         "optionalComment": {
           "type": "string",
-          "title": "[ (validate.rules).string.ignore_empty = true ];"
+          "title": "[ (validate.rules).message.required = false ];"
         }
       },
       "description": "Relationship specifies how a resource relates to a subject. Relationships\nform the data for the graph over which all permissions questions are\nanswered."
